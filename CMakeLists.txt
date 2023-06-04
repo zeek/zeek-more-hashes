@@ -1,17 +1,18 @@
 
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
-project(ZeekPluginMoreFileHashes)
+project(ZeekPluginMoreHashes)
 
 include(ZeekPlugin)
 
 zeek_add_plugin(
     Zeek
-    MoreFileHashes
+    MoreHashes
     SOURCES
     src/Plugin.cc
+    src/mmh3/PMurHash.c
     BIFS
-    src/morefilehashes.bif
+    src/morehashes.bif
     DIST_FILES
     README CHANGES COPYING VERSION
 )

@@ -1,0 +1,34 @@
+%%{
+#include "Plugin.h"
+
+namespace mfh = plugin::Zeek_MoreHashes;
+%%}
+
+module GLOBAL;
+
+function mmh3_hash_init%(seed: count &default=0%): opaque of mmh3
+    %{
+    auto digest = zeek::make_intrusive<mfh::detail::MMH3Val>(static_cast<uint32_t>(seed));
+    digest->Init();
+    return digest;
+    %}
+
+function mmh3_hash_update%(handle: opaque of mmh3, data: string%): opaque of mmh3
+    %{
+    bool rc = static_cast<mfh::detail::MMH3Val*>(handle)->Feed(data->Bytes(), data->Len());
+	return zeek::val_mgr->Bool(rc);
+    %}
+
+function mmh3_hash_finish%(handle: opaque of mmh3%): count
+    %{
+    uint32_t result = static_cast<mfh::detail::MMH3Val*>(handle)->Result();
+	return zeek::val_mgr->Count(result);
+    %}
+
+function mmh3_hash%(data: string, seed: count &default=0%): count
+    %{
+    auto digest = zeek::make_intrusive<mfh::detail::MMH3Val>(static_cast<uint32_t>(seed));
+    digest->Init();
+    digest->Feed(data->Bytes(), data->Len());
+    return zeek::val_mgr->Count(digest->Result());
+    %}

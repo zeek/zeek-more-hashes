@@ -1,5 +1,15 @@
+Zeek::MoreHashes
+================
 
-Zeek::MoreFileHashes
-=================================
+Provide less common file hashes in a plugin. For now this includes MurmurHash3.
 
-<Insert plugin documentation here.>
+MurmurHash3
+-----------
+
+To add a mmh3 field to your files.log: Install this plugin and add the
+following to your ``local.zeek``:
+
+    @load zeek-more-hashes/mmh3
+
+This plugin also provides built-in functions to compute MurmurHash3 in Zeek's
+script-land: `mmh3_hash()`, `mmh3_hash_init()` `mmh3_hash_update()` and `mmh3_hash_finish()`.

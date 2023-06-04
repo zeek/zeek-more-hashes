@@ -1,0 +1,8 @@
+[package]
+name = MoreHashes
+description = Additional hashing functions for Zeek, started with MurmurHash3.
+tags = mmh3
+script_dir = ./scripts/Zeek/MoreHashes
+plugin_dir = build
+build_command = ./configure && cd build && make
+test_command = cd tests && btest -d -c btest.cfg
