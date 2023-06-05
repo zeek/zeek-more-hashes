@@ -1,5 +1,5 @@
 %%{
-#include "Plugin.h"
+#include "MMH3.h"
 
 namespace mfh = plugin::Zeek_MoreHashes;
 %%}
