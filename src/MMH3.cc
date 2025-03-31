@@ -21,47 +21,40 @@ uint32_t detail::MMH3Val::Result() {
   return PMurHash32_Result(mmh3_h1, mmh3_carry, mmh3_total_len);
 }
 
-broker::expected<broker::data> detail::MMH3Val::DoSerialize() const {
+std::optional<zeek::BrokerData> detail::MMH3Val::DoSerializeData() const {
   if (!IsValid())
-    return {broker::vector{false}};
+    return std::nullopt;
 
-  broker::vector d = {true, mmh3_h1, mmh3_carry, mmh3_total_len};
-  return {std::move(d)};
+  zeek::BrokerListBuilder builder;
+  builder.Reserve(4);
+  builder.Add(true);
+  builder.Add(static_cast<uint64_t>(mmh3_h1));
+  builder.Add(static_cast<uint64_t>(mmh3_carry));
+  builder.Add(static_cast<uint64_t>(mmh3_total_len));
+
+  return std::move(builder).Build();
 }
 
 // This is a totally untested best-effort implementation. It's a
 // bit of a burden adding this to a HashVal.
-bool detail::MMH3Val::DoUnserialize(const broker::data &data) {
-  auto *d = broker::get_if<broker::vector>(data);
-  if (!d)
+bool detail::MMH3Val::DoUnserializeData(zeek::BrokerDataView data) {
+  if (!data.IsList())
     return false;
 
-  const auto &dv = *d;
+  auto d = data.ToList();
 
-  if (dv.size() < 1)
+  if (d.Size() != 4)
     return false;
 
-  auto *valid = broker::get_if<broker::boolean>(dv[0]);
-  if (!valid)
+  if (!d[0].IsBool() || !d[1].IsCount() || !d[2].IsCount() || !d[3].IsCount())
     return false;
 
-  if (!*valid)
-    return true; // while the content is invalid, unserializing was
-                 // successful.
+  if (!d[0].ToBool()) // This shouldn't actually happen.
+    return true;
 
-  if (dv.size() < 4)
-    return false;
-
-  auto *d_mmh3_h1 = broker::get_if<broker::count>(dv[1]);
-  auto *d_mmh3_carry = broker::get_if<broker::count>(dv[2]);
-  auto *d_mmh3_total_len = broker::get_if<broker::count>(dv[3]);
-
-  if (!d_mmh3_h1 || !d_mmh3_carry || !d_mmh3_total_len)
-    return false;
-
-  mmh3_h1 = static_cast<uint32_t>(*d_mmh3_h1);
-  mmh3_carry = static_cast<uint32_t>(*d_mmh3_carry);
-  mmh3_total_len = static_cast<uint32_t>(*d_mmh3_total_len);
+  mmh3_h1 = static_cast<uint32_t>(d[1].ToCount());
+  mmh3_carry = static_cast<uint32_t>(d[2].ToCount());
+  mmh3_total_len = static_cast<uint32_t>(d[3].ToCount());
 
   return true;
 }

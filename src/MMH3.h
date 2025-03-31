@@ -4,6 +4,7 @@
 #include <broker/error.hh>
 
 #include <zeek/OpaqueVal.h>
+#include <zeek/broker/Data.h>
 #include <zeek/file_analysis/analyzer/hash/Hash.h>
 #include <zeek/file_analysis/analyzer/hash/events.bif.h>
 
@@ -23,9 +24,9 @@ public:
 
   uint32_t Result();
 
-  broker::expected<broker::data> DoSerialize() const override;
+  std::optional<zeek::BrokerData> DoSerializeData() const override;
 
-  bool DoUnserialize(const broker::data &data) override;
+  bool DoUnserializeData(zeek::BrokerDataView data) override;
 
   const char *OpaqueName() const override { return "MMH3Val"; }
 
